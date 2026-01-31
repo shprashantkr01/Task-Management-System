@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes";
 import { authMiddleware } from "./modules/auth/auth.middleware";
+import taksRoutes from "./modules/task/task.routes";
 
 
 
@@ -26,5 +27,7 @@ app.get("/protected", authMiddleware, (req, res) => {
   res.json({ message: "You are authorized" });
 });
 
+
+app.use("/tasks", taksRoutes);
 
 export default app;
