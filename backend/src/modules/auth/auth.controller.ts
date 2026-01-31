@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { registerUser } from "./auth.service";
 import { loginUser } from "./auth.service";
+import { refreshAccessToken } from "./auth.service";
 
 
 export async function register(req: Request, res: Response) {
@@ -50,5 +51,21 @@ export async function login(req: Request, res: Response) {
     }
 
     return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+export async function refresh(req: Request, res: Response) {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ message: "Refresh token required" });
+    }
+
+    const token = await refreshAccessToken(refreshToken);
+
+    return res.status(200).json(token);
+  } catch {
+    return res.status(401).json({ message: "Invalid refresh token" });
   }
 }

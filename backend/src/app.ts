@@ -1,6 +1,10 @@
 import express from "express";
 import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes";
+import { authMiddleware } from "./modules/auth/auth.middleware";
+
+
+
 const app = express();
 
 // Middleware
@@ -16,6 +20,11 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/auth", authRoutes);
+
+
+app.get("/protected", authMiddleware, (req, res) => {
+  res.json({ message: "You are authorized" });
+});
 
 
 export default app;

@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import  Jwt  from "jsonwebtoken";
 import prisma from "../../config/prisma";
 import { generateAccessToken, generateRefreshToken } from "./auth.utils";
 const SALT_ROUNDS = 10;
@@ -75,4 +76,30 @@ export async function loginUser(email: string, password: string) {
       createdAt: user.createdAt,
     },
   };
+}
+
+export async function refreshAccessToken(refreshToken: string) {
+  try {
+    const payload = Jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET!
+    ) as { userId: number };
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+    });
+
+    if (!user || user.refreshToken !== refreshToken) {
+      throw new Error("Invalid refresh token");
+    }
+
+    const newAccessToken = generateAccessToken({
+      userId: user.id,
+      email: user.email,
+    });
+
+    return { accessToken: newAccessToken };
+  } catch {
+    throw new Error("Invalid refresh token");
+  }
 }
